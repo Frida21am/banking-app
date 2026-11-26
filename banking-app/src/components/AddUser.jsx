@@ -1,35 +1,38 @@
 import React, { useState } from 'react';
 
-const AddUser = (props) => {
-	let userAdd = {}
-	const [addUser, setAddUser] = useState({
-		first_name: "",
-		last_name: "",
-		email: "",
-		age: 1
-	})
-	let myForm;
-	return (
-		<form ref={(el) => myForm = el}>
-			<input placeholder="Имя" onChange={(e) => setAddUser({first_name: e.target.value})} />
-			<input placeholder="Фамилия" onChange={(e) => setAddUser({last_name: e.target.value})} />
-			<input placeholder="E-mail" onChange={(e) => setAddUser({email: e.target.value})} />
-			<input placeholder="Возраст" onChange={(e) => setAddUser({age: e.target.value})} />
-			<button type="button" onClick={() => {
-				myForm.reset()
-				userAdd = {
-					first_name: this.first_name,
-					last_name: this.last_name,
-					email: this.email,
-					age: this.age
-				}
-				if(props.user)
-					userAdd.id = props.user.id
-					props.onAdd(userAdd)
-				}
-			}>Добавить</button>
-		</form>
-	)
+const emptyUser = { first_name: '', last_name: '', email: '', age: '' };
+
+function AddUser({ user, onSubmit, onCancel }) {
+  const [fields, setFields] = useState(user ?? emptyUser);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFields((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSubmit({
+      ...fields,
+      first_name: fields.first_name.trim(),
+      last_name: fields.last_name.trim(),
+      email: fields.email.trim(),
+      age: Number(fields.age),
+    });
+    if (!user) setFields(emptyUser);
+    onCancel?.();
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="first_name" placeholder="Имя" aria-label="Имя" value={fields.first_name} onChange={handleChange} required />
+      <input name="last_name" placeholder="Фамилия" aria-label="Фамилия" value={fields.last_name} onChange={handleChange} required />
+      <input name="email" type="email" placeholder="E-mail" aria-label="E-mail" value={fields.email} onChange={handleChange} required />
+      <input name="age" type="number" min="1" placeholder="Возраст" aria-label="Возраст" value={fields.age} onChange={handleChange} required />
+      <button type="submit">{user ? 'Сохранить' : 'Добавить'}</button>
+      {onCancel && <button type="button" onClick={onCancel}>Отмена</button>}
+    </form>
+  );
 }
 
 export default AddUser;

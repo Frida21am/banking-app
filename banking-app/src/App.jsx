@@ -1,59 +1,39 @@
-import React, {useState} from 'react'
-import Header from './components/Header'
-import Users from './components/Users'
-import AddUser from './components/AddUser'
-import users from './data'
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Users from './components/Users';
+import AddUser from './components/AddUser';
+import initialUsers from './data';
 
 function App() {
-	const [card, setCard] = useState(users);
-	const deleteUser = (id) => {
-		setCard((card) => card.filter((el) => el.id !== id));
-	}
-	/*const deleteUser = (id) => {
-		setCard((card) => {
-			card.forEach((el, index) => {
-				if (id == el.id) {
-					card.splice(index, 1);
-				}
-			});
-		});
-	}*/
+  const [users, setUsers] = useState(initialUsers);
 
-	const [edit, setEdit] = useState(users);
-	const editUser = (id) => {
-		setEdit((edit) => {
-			return edit.map((user) => {
-				let allUsers = users
-				allUsers[user.id - 1] = user
-				setEdit((edit) => {
-					edit = [];
-					edit = [...allUsers];
-				});
-			})
-		})
-	}
-	const [add, setAdd] = useState({users});
-	const addUser = (id) => {
-		setAdd((edit) => {
-			const id = users.length + 1
-			return add.map((user) => {
-				setAdd((edit) => {
-					users = [...this.state.users, {id, ...user}];
-				});
-			})
-		})
-	}
-	return (
-		<div>
-			<Header title="Список пользователей" />
-			<main>
-				<Users users={users} onEdit={editUser} onDelete={deleteUser} />
-			</main>
-			<aside>
-				<AddUser onAdd={addUser} />
-			</aside>
-		</div>
-	);
+  const addUser = (fields) => {
+    setUsers((current) => [
+      ...current,
+      { ...fields, id: Math.max(0, ...current.map((user) => user.id)) + 1 },
+    ]);
+  };
+
+  const editUser = (updated) => {
+    setUsers((current) => current.map((user) => user.id === updated.id ? updated : user));
+  };
+
+  const deleteUser = (id) => {
+    setUsers((current) => current.filter((user) => user.id !== id));
+  };
+
+  return (
+    <>
+      <Header title="Список пользователей" />
+      <main>
+        <Users users={users} onEdit={editUser} onDelete={deleteUser} />
+      </main>
+      <aside>
+        <h2>Добавить пользователя</h2>
+        <AddUser onSubmit={addUser} />
+      </aside>
+    </>
+  );
 }
 
-export default App
+export default App;
